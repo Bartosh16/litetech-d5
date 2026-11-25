@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda D5 Lite Tech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&family=Sen:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#05090f; --card:#0a1626; --indigo:#1a2e4c; --line:#ffffff1f;
+  --fg:#f2f9fc; --ice:#dcf1f9; --subtle:#b5c7d2; --muted:#708599;
+  --green:#00d5b5; --green2:#80eada; --star:#f0c35a;
+  --head:"Figtree",system-ui,sans-serif; --body:"Sen",system-ui,sans-serif; --mono:"JetBrains Mono",Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#05090f 0%,#0a1626 55%,#1a2e4c 100%) fixed,var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin-bottom:18px}
+.logos{display:flex;align-items:center;gap:16px}
+.logos img{height:24px;width:auto;display:block}
+.logos .ga{height:34px}
+.logos .sep{width:1px;height:26px;background:var(--line)}
+.meta{font:500 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--subtle);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle}
+.dot.off{background:#e0675c}
+h1{font:700 clamp(26px,4vw,38px)/1.1 var(--head);margin:0 0 4px}
+h1 em{font-style:normal;color:var(--green)}
+.sub{color:var(--subtle);margin:0 0 22px}
+.label{font:700 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+
+.now{border:1px solid var(--green);border-radius:20px;background:rgba(0,213,181,.06);padding:22px;margin-bottom:28px}
+.now-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:baseline}
+.now h2{font:700 clamp(22px,3vw,30px)/1.15 var(--head);margin:6px 0 16px}
+.time{font:600 14px var(--mono);color:var(--ice)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.f{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.f p{margin:6px 0 0}
+.f.star{border-color:var(--star)}
+.f.star .label{color:var(--star)}
+.f.wait .label{color:var(--green2)}
+.paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+.paths .f .label{color:var(--subtle)}
+.btn{margin-top:16px;background:var(--green);color:#05090f;border:0;border-radius:999px;padding:10px 18px;font:700 14px var(--head);cursor:pointer}
+.btn:active{transform:translateY(1px)}
+
+.list{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:120px 90px 1fr;gap:12px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px;cursor:pointer}
+.row.cur{border-color:var(--green)}
+.row.brk{background:transparent;cursor:default;padding:6px 16px}
+.row.brk .t{color:var(--muted)}
+.row .h{font:600 13.5px var(--mono);color:var(--ice)}
+.row .b{font:700 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.row.cur .b{color:var(--green)}
+.row .t{font:600 16px var(--head)}
+.row .more{display:none;grid-column:1/-1;margin-top:6px}
+.row.open .more{display:block}
+.row .more p{margin:4px 0;color:var(--subtle)}
+.row .more b{color:var(--fg);font-weight:600}
+footer{margin-top:28px;color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--green);color:#05090f;padding:8px 16px;border-radius:999px;font:700 14px var(--head);opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:640px){
+  .row{grid-template-columns:1fr;gap:2px}
+  .now{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logos">
+      <img src="aihero-logo-white.svg" alt="AI Hero">
+      <span class="sep"></span>
+      <img class="ga" src="growth-advisors-logo-jasne.png" alt="Growth Advisors">
+    </div>
+    <div class="meta"><span id="status"><span class="dot"></span>na żywo</span><span id="updated"></span></div>
+  </header>
+
+  <h1>Dzień 5: <em>zlecasz, odchodzisz, wracasz</em> i sprawdzasz</h1>
+  <p class="sub">Lite Tech, 7 grudnia, 9:00–15:00. Strona odświeża się sama, nie musisz jej przeładowywać.</p>
+
+  <section class="now" id="now" aria-live="polite"></section>
+
+  <div class="label" style="margin-bottom:10px">Cały dzień</div>
+  <div class="list" id="list"></div>
+
+  <footer>Kliknij blok, żeby zobaczyć jego zadanie. Zadanie z gwiazdką jest dla chętnych i omawiamy je na końcu każdego bloku.</footer>
+</div>
+<div class="toast" id="toast">Skopiowane</div>
+
+<script>
+// Link do arkusza Google opublikowanego jako CSV (Plik > Udostępnij > Opublikuj w internecie > CSV).
+// Pusty = strona czyta agenda.csv z tego folderu.
+const SHEET_CSV_URL = "";
+const FALLBACK = "agenda.csv";
+const REFRESH_MS = 45000;
+
+let rows = [], openId = null, lastOk = null;
+
+function parseCSV(text){
+  const out=[]; let row=[], f="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c=='"'){ if(text[i+1]=='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c=='"') q=true;
+    else if(c==','){ row.push(f); f=""; }
+    else if(c=='\n'||c=='\r'){ if(c=='\r'&&text[i+1]=='\n') i++; row.push(f); out.push(row); row=[]; f=""; }
+    else f+=c;
+  }
+  if(f!==""||row.length){ row.push(f); out.push(row); }
+  const head=out.shift().map(h=>h.trim().toLowerCase());
+  return out.filter(r=>r.some(x=>x.trim())).map(r=>Object.fromEntries(head.map((h,i)=>[h,(r[i]||"").trim()])));
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const isBreak=r=>/przerwa/i.test(r.blok);
+
+function current(){
+  const marked=rows.find(r=>r.teraz);
+  if(marked) return marked;
+  // Brak znacznika „teraz” w arkuszu: blok według godziny w Polsce.
+  const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Europe/Warsaw"}));
+  const min=now.getHours()*60+now.getMinutes();
+  const toMin=t=>{const [h,m]=t.split(":").map(Number);return h*60+m;};
+  return rows.find(r=>{const p=r.godzina.split(/[–-]/);return p.length==2&&min>=toMin(p[0])&&min<toMin(p[1]);})||rows[0];
+}
+
+function field(cls,label,text){ return text?`<div class="f ${cls}"><div class="label">${label}</div><p>${esc(text)}</p></div>`:""; }
+
+function render(){
+  const cur=current(); if(!cur) return;
+  const n=document.getElementById("now");
+  if(isBreak(cur)){
+    n.innerHTML=`<div class="now-top"><span class="label">Teraz</span><span class="time">${esc(cur.godzina)}</span></div><h2>${esc(cur.tytul)}</h2>`;
+  } else {
+    n.innerHTML=`<div class="now-top"><span class="label">Teraz · ${esc(cur.blok)}</span><span class="time">${esc(cur.godzina)}</span></div>
+      <h2>${esc(cur.tytul)}</h2>
+      <div class="fields">${field("","Zadanie",cur.zadanie)}${field("","Oczekiwany wynik",cur.wynik)}${field("star","★ Zadanie z gwiazdką",cur.gwiazdka)}${field("wait","Gdy agent pracuje",cur.gdy_agent_pracuje)}</div>
+      ${cur.sciezka_zaczynam||cur.sciezka_regularnie?`<div class="paths">${field("","Ścieżka: zaczynam",cur.sciezka_zaczynam)}${field("","Ścieżka: regularnie",cur.sciezka_regularnie)}</div>`:""}
+      ${cur.zadanie?`<button class="btn" id="copy">Kopiuj zadanie na czat</button>`:""}`;
+    const b=document.getElementById("copy");
+    if(b) b.onclick=()=>copy(cur);
+  }
+  document.getElementById("list").innerHTML=rows.map(r=>{
+    if(isBreak(r)) return `<div class="row brk${r===cur?" cur":""}"><span class="h">${esc(r.godzina)}</span><span class="b"></span><span class="t">${esc(r.tytul)}</span></div>`;
+    const more=[["Zadanie",r.zadanie],["Wynik",r.wynik],["★",r.gwiazdka],["Gdy agent pracuje",r.gdy_agent_pracuje]].filter(x=>x[1]).map(([k,v])=>`<p><b>${k}:</b> ${esc(v)}</p>`).join("");
+    return `<div class="row${r===cur?" cur":""}${openId===r.id?" open":""}" data-id="${esc(r.id)}"><span class="h">${esc(r.godzina)}</span><span class="b">${esc(r.blok)}</span><span class="t">${esc(r.tytul)}</span>${more?`<div class="more">${more}</div>`:""}</div>`;
+  }).join("");
+  document.querySelectorAll(".row[data-id]").forEach(el=>el.onclick=()=>{openId=openId===el.dataset.id?null:el.dataset.id;render();});
+}
+
+function copy(r){
+  const t=[`${r.blok}: ${r.tytul}`,`Zadanie: ${r.zadanie}`,r.wynik&&`Oczekiwany wynik: ${r.wynik}`,r.gwiazdka&&`★ Zadanie z gwiazdką: ${r.gwiazdka}`,r.gdy_agent_pracuje&&`Gdy agent pracuje: ${r.gdy_agent_pracuje}`].filter(Boolean).join("\n");
+  const done=()=>{const el=document.getElementById("toast");el.classList.add("on");setTimeout(()=>el.classList.remove("on"),1500);};
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(done,()=>fallbackCopy(t,done)); else fallbackCopy(t,done);
+}
+function fallbackCopy(t,done){ const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");done();}catch(e){}a.remove(); }
+
+async function load(){
+  const url=(SHEET_CSV_URL||FALLBACK)+((SHEET_CSV_URL||FALLBACK).includes("?")?"&":"?")+"t="+Date.now();
+  try{
+    const res=await fetch(url,{cache:"no-store"});
+    if(!res.ok) throw new Error(res.status);
+    const data=parseCSV(await res.text());
+    if(!data.length) throw new Error("pusty");
+    rows=data; lastOk=new Date();
+    document.getElementById("status").innerHTML='<span class="dot"></span>na żywo';
+  }catch(e){
+    document.getElementById("status").innerHTML='<span class="dot off"></span>offline, ostatnia wersja';
+  }
+  if(lastOk) document.getElementById("updated").textContent="aktualizacja "+lastOk.toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"});
+  render();
+}
+load(); setInterval(load,REFRESH_MS);
+</script>
+</body>
+</html>
